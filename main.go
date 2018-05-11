@@ -45,8 +45,8 @@ func LoadConfig(filename string) *Config {
 	return conf
 }
 
-func mirror(url string) error {
-	cmd := exec.Command("git", "clone", "--mirror", url)
+func execPrinting(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
 
 	var stdOut, errOut bytes.Buffer
 	cmd.Stdout = &stdOut
@@ -57,22 +57,20 @@ func mirror(url string) error {
 	return err
 }
 
-// pull update git mirror repo with delete branch
+// mirror execute git clone --mirror
+func mirror(url string) error {
+	return execPrinting("git", "clone", "--mirror", url)
+}
+
+// pull execute git --git-dir=<name>.git remote update --prune
+// to update git mirror repo with delete branch
 // reference:
 // https://stackoverflow.com/questions/7068541/
 func pull(name string) error {
-	cmd := exec.Command("git", "--git-dir="+name+".git", "remote", "update", "--prune")
-
-	var stdOut, errOut bytes.Buffer
-	cmd.Stdout = &stdOut
-	cmd.Stderr = &errOut
-
-	err := cmd.Run()
-	fmt.Println(stdOut.String(), errOut.String())
-	return err
+	return execPrinting("git", "--git-dir="+name+".git", "remote", "update", "--prune")
 }
 
-func findRepoDir(path string) error {
+func findAndCreateDir(path string) error {
 	_, err := os.Stat(path)
 	if err == nil {
 		return nil
@@ -91,7 +89,7 @@ func findRepoDir(path string) error {
 func main() {
 	conf := LoadConfig("config.yaml")
 
-	err := findRepoDir(conf.RepoPath)
+	err := findAndCreateDir(conf.RepoPath)
 	if err != nil {
 		panic(err)
 	}
