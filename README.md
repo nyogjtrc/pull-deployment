@@ -1,5 +1,7 @@
 # Pull Deployment
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/nyogjtrc/pull-repo)](https://goreportcard.com/report/github.com/nyogjtrc/pull-repo)
+
 ## Install
 
 ```
