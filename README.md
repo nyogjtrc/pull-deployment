@@ -23,3 +23,7 @@ projects:
 ```
 
 - repo_path: base dir to put git repo
+
+## TODO
+
+- checkout file
