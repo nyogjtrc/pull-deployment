@@ -14,16 +14,15 @@ $ go get -u github.com/nyogjtrc/pull-repo
 repo_path: ./repo
 work_path: ./work
 projects:
-    - name: f2e-jacket
+    - name: f2e-jacket.git
       url: git@github.com:nyogjtrc/f2e-jacket.git
+      work_tree: f2e-jacket-master
       version: master
-    - name: awesome
-      url: git@github.com:nyogjtrc/awesome.git
-      version: master
+    - name: f2e-jacket.git
+      url: git@github.com:nyogjtrc/f2e-jacket.git
+      work_tree: f2e-jacket-release
+      version: v0.1.3
 ```
 
 - repo_path: base dir to put git repo
-
-## TODO
-
-- checkout file
+- work_path: base dir to put work tree
