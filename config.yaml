@@ -1,9 +1,15 @@
 repo_path: ./repo
 work_path: ./work
 projects:
-    - name: f2e-jacket
+    - name: f2e-jacket.git
       url: git@github.com:nyogjtrc/f2e-jacket.git
+      work_tree: f2e-jacket-master
       version: master
-    - name: awesome
+    - name: f2e-jacket.git
+      url: git@github.com:nyogjtrc/f2e-jacket.git
+      work_tree: f2e-jacket-release
+      version: v0.1.3
+    - name: awesome.git
       url: git@github.com:nyogjtrc/awesome.git
+      work_tree: awesome-master
       version: master

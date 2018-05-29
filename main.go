@@ -13,9 +13,10 @@ import (
 
 // Project of git repo
 type Project struct {
-	Name    string
-	URL     string
-	Version string
+	Name     string
+	URL      string
+	WorkTree string `yaml:"work_tree"`
+	Version  string
 }
 
 // Config of work env
@@ -58,16 +59,35 @@ func execPrinting(name string, args ...string) error {
 }
 
 // mirror execute git clone --mirror
-func mirror(url string) error {
-	return execPrinting("git", "clone", "--mirror", url)
+func mirror(url string, path string) error {
+	return execPrinting("git", "clone", "--mirror", url, path)
 }
 
-// pull execute git --git-dir=<name>.git remote update --prune
+// pull execute git --git-dir=<name> remote update --prune
 // to update git mirror repo with delete branch
 // reference:
 // https://stackoverflow.com/questions/7068541/
 func pull(name string) error {
-	return execPrinting("git", "--git-dir="+name+".git", "remote", "update", "--prune")
+	return execPrinting(
+		"git",
+		"--git-dir="+name,
+		"remote",
+		"update",
+		"--prune",
+	)
+}
+
+// checkout file
+// git --git-dir=<name> --work-tree=<work-tree> checkout <commit>
+func checkout(name string, worktree string, version string) error {
+	return execPrinting(
+		"git",
+		"--git-dir="+name,
+		"--work-tree="+worktree,
+		"checkout",
+		"-f",
+		version,
+	)
 }
 
 func findAndCreateDir(path string) error {
@@ -90,23 +110,35 @@ func main() {
 	conf := LoadConfig("config.yaml")
 
 	err := findAndCreateDir(conf.RepoPath)
-	if err != nil {
-		panic(err)
-	}
-	err = os.Chdir(conf.RepoPath)
-	if err != nil {
-		panic(err)
-	}
+	PanicWhenError(err)
+	err = findAndCreateDir(conf.WorkPath)
+	PanicWhenError(err)
 
 	for _, c := range conf.Projects {
-		path := fmt.Sprintf("%s.git", c.Name)
-		_, err := os.Stat(path)
+		// update
+		repoPath := fmt.Sprintf("%s/%s", conf.RepoPath, c.Name)
+		fmt.Println(repoPath)
+		_, err := os.Stat(repoPath)
 		if os.IsNotExist(err) {
 			fmt.Println(c.Name, "not existed")
-			mirror(c.URL)
+			mirror(c.URL, repoPath)
 		} else {
 			fmt.Println(c.Name, "existed")
-			pull(c.Name)
+			pull(repoPath)
 		}
+
+		// checkout
+		workPath := fmt.Sprintf("%s/%s/", conf.WorkPath, c.WorkTree)
+		fmt.Println(workPath)
+		err = findAndCreateDir(workPath)
+		PanicWhenError(err)
+		checkout(repoPath, workPath, c.Version)
+	}
+}
+
+// PanicWhenError execute panic when error is not nil
+func PanicWhenError(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
